@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Dashboard - Simply Rugby</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-body: #F0F4F8; --sidebar-bg: #0B1120; --sidebar-hover: #1E293B;
+            --primary-blue: #2563EB; --primary-light: #EFF6FF; --success-green: #10B981;
+            --warning-gold: #F59E0B; --danger-red: #EF4444; --surface: #FFFFFF;
+            --text-main: #0F172A; --text-muted: #64748B; --border-color: #E2E8F0;
+            --shadow-md: 0 12px 24px -6px rgba(0,0,0,0.06);
+            --radius-lg: 20px; --radius-md: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: radial-gradient(circle at top right, #E0E7FF 0%, var(--bg-body) 40%, var(--bg-body) 100%); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+
+        /* Sidebar & Header */
+        .sidebar { width: 280px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; box-shadow: 4px 0 24px rgba(0,0,0,0.05); z-index: 20;}
+        .brand { padding: 32px 24px; font-size: 22px; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; gap: 14px;}
+        .nav-item { padding: 16px 20px; cursor: pointer; display: flex; align-items: center; gap: 14px; color: #94A3B8; font-weight: 600; border-radius: var(--radius-md); margin: 24px 16px; background-color: var(--primary-blue); color: white; box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35); }
+        .logout { padding: 18px; margin: auto 16px 30px; border-top: 1px solid rgba(255,255,255,0.06); color: #FCA5A5; text-align: center; font-weight: 600; border-radius: var(--radius-md); display: flex; justify-content: center; align-items: center; gap: 10px; background: rgba(239, 68, 68, 0.05); text-decoration: none; transition: 0.2s;}
+        .logout:hover { background: rgba(239, 68, 68, 0.15); color: var(--danger-red); }
+
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        .header { background-color: rgba(255,255,255,0.8); backdrop-filter: blur(12px); height: 84px; padding: 0 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.5); z-index: 10;}
+        .header-title { font-size: 24px; font-weight: 800; letter-spacing: -0.5px;}
+        .user-profile { display: flex; align-items: center; gap: 14px; font-weight: 600; font-size: 14.5px; color: var(--text-muted); }
+        .avatar-main { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--warning-gold), #FBBF24); color: white; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);}
+
+        .content { padding: 32px 40px; overflow-y: auto; flex-grow: 1; scroll-behavior: smooth; animation: fadeUpIn 0.5s forwards; }
+        @keyframes fadeUpIn { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
+
+        /* Stat Cards */
+        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 24px; }
+        .stat-card { background: var(--surface); padding: 24px; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); border: 1px solid rgba(255,255,255,0.8); display: flex; align-items: center; gap: 20px; transition: 0.3s;}
+        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -8px rgba(0,0,0,0.1); }
+        .stat-icon { width: 60px; height: 60px; border-radius: 16px; display: flex; justify-content: center; align-items: center; font-size: 24px; }
+        .stat-info h4 { color: var(--text-muted); font-size: 13px; text-transform: uppercase; font-weight: 700; margin-bottom: 6px;}
+        .stat-info h2 { color: var(--text-main); font-size: 32px; font-weight: 800; line-height: 1;}
+
+        /* Layout & Panels */
+        .dashboard-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px; }
+        .panel { background-color: var(--surface); border-radius: var(--radius-lg); border: 1px solid rgba(255,255,255,0.5); box-shadow: var(--shadow-md); overflow: hidden; display: flex; flex-direction: column;}
+        .panel-header { padding: 20px 28px; border-bottom: 1px solid var(--border-color); background: rgba(248, 250, 252, 0.4); display: flex; justify-content: space-between; align-items: center;}
+        .panel-header h3 { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 10px;}
+
+        /* Buttons & Form Elements */
+        .btn { padding: 8px 16px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-export { background: white; color: var(--text-main); border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.02);}
+        .btn-export:hover { background: #F8FAFC; border-color: #CBD5E1; }
+        .btn-success { background: linear-gradient(135deg, var(--success-green), #059669); color: white; box-shadow: 0 4px 12px rgba(16,185,129,0.2);}
+        .btn-primary { background: var(--primary-blue); color: white; }
+        .form-control { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 8px; outline: none; font-size: 13px; transition: 0.2s; }
+        .form-control:focus { border-color: var(--primary-blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+
+        /* Tables & UI Details */
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 16px 28px; border-bottom: 1px solid var(--border-color); }
+        th { background: #F8FAFC; color: #475569; text-transform: uppercase; font-size: 12px; font-weight: 700;}
+        tbody tr:hover { background-color: #F8FAFC; }
+        .user-cell { display: flex; align-items: center; gap: 12px; }
+        .user-avatar { width: 36px; height: 36px; border-radius: 10px; background: var(--primary-light); color: var(--primary-blue); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px;}
+        .progress-container { width: 120px; height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden; margin-top: 6px;}
+        .progress-bar { height: 100%; background: linear-gradient(90deg, var(--warning-gold), #FBBF24); border-radius: 4px;}
+        .badge-role { background: #F1F5F9; border: 1px solid #E2E8F0; padding: 4px 10px; border-radius: 6px; font-size: 12px; color: #475569; margin-right: 6px; display: inline-block;}
+        .badge-type { background: #DBEAFE; color: #1E40AF; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600;}
+        .empty-state { text-align: center; padding: 60px 20px; color: #94A3B8; }
+
+        /* Modal Styles */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-overlay.active { display: flex; animation: fadeIn 0.2s ease; }
+        .modal-content { background: white; padding: 32px; border-radius: 20px; width: 100%; max-width: 500px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+    </style>
+</head>
+<body>
+<aside class="sidebar">
+    <div class="brand"><i class="fa-solid fa-crown" style="color:var(--warning-gold);"></i> Club Manager</div>
+    <div class="nav-item"><i class="fa-solid fa-chart-pie"></i> Operations & Engagement</div>
+    <a href="login.html" class="logout"><i class="fa-solid fa-right-from-bracket"></i> Log Out</a>
+</aside>
+
+<main class="main-content">
+    <header class="header">
+        <div>
+            <h2 class="header-title">Club Operations Overview</h2>
+            <div style="font-size: 12px; color: var(--success-green); font-weight: 600; margin-top: 4px;">
+                <i class="fa-solid fa-circle-check"></i> System data synced to latest <span id="sync-time"></span>
+            </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 24px;">
+            <button class="btn btn-primary" onclick="openNotifModal()"><i class="fa-solid fa-bullhorn"></i> Send Global Broadcast</button>
+            <div class="user-profile">
+                <span>Executive Account (Manager)</span>
+                <div class="avatar-main"><i class="fa-solid fa-crown"></i></div>
+            </div>
+        </div>
+    </header>
+
+    <div class="content">
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #DBEAFE, #BFDBFE); color: #1D4ED8;"><i class="fa-solid fa-users"></i></div>
+                <div class="stat-info"><h4>Registered Volunteers</h4><h2 id="stat-vols">0</h2></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #D1FAE5, #A7F3D0); color: #059669;"><i class="fa-solid fa-calendar-check"></i></div>
+                <div class="stat-info"><h4>Scheduled Events</h4><h2 id="stat-events">0</h2></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #FEE2E2, #FECACA); color: #DC2626;"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <div class="stat-info"><h4>Vacant Roles</h4><h2 id="stat-pending">0</h2></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #FEF3C7, #FDE68A); color: #D97706;"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                <div class="stat-info"><h4>Total Service Hours</h4><h2 id="stat-hours">0</h2></div>
+            </div>
+        </div>
+
+        <div class="dashboard-layout">
+            <div class="panel">
+                <div class="panel-header">
+                    <h3><i class="fa-solid fa-medal" style="color:var(--warning-gold);"></i> Outstanding Volunteer Hours Leaderboard</h3>
+                    <div style="display: flex; gap: 10px;">
+                        <div style="position: relative;">
+                            <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 10px; top: 10px; color: #94A3B8; font-size: 12px;"></i>
+                            <input type="text" id="search-vol" class="form-control" style="padding-left: 28px; width: 160px;" placeholder="Search volunteers..." onkeyup="filterLeaderboard()">
+                        </div>
+                        <button class="btn btn-export" onclick="alert('📊 System is generating the annual Excel report...')"><i class="fa-solid fa-file-export"></i> Export</button>
+                    </div>
+                </div>
+                <table>
+                    <thead><tr><th>Rank</th><th>Volunteer Info</th><th>Hours Progress Tracking</th></tr></thead>
+                    <tbody id="leaderboard"></tbody>
+                </table>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <h3><i class="fa-solid fa-scale-balanced" style="color:#2563EB;"></i> Executive Approvals & Permissions</h3>
+                </div>
+                <div id="approvals" style="padding: 24px; flex-grow: 1; display: flex; flex-direction: column;"></div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header">
+                <h3><i class="fa-solid fa-calendar-days" style="color:#10B981;"></i> Club Event Schedule & Role Requirements</h3>
+            </div>
+            <table>
+                <thead><tr><th>Date</th><th>Event Name</th><th>Event Type</th><th>Configured Roles</th></tr></thead>
+                <tbody id="events-list"></tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<div id="notif-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h3 style="font-size: 20px; font-weight: 700; color: var(--text-main);"><i class="fa-solid fa-paper-plane" style="color: var(--primary-blue);"></i> Send Global Broadcast</h3>
+            <i class="fa-solid fa-xmark" style="cursor: pointer; font-size: 20px; color: #94A3B8;" onclick="document.getElementById('notif-modal').classList.remove('active')"></i>
+        </div>
+        <div style="margin-bottom: 16px;">
+            <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 8px;">Target Group</label>
+            <select class="form-control" style="width: 100%; padding: 12px;">
+                <option>All Staff & Volunteers</option>
+                <option>Active Volunteers Only</option>
+            </select>
+        </div>
+        <div style="margin-bottom: 16px;">
+            <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 8px;">Subject</label>
+            <input type="text" id="notif-sub" class="form-control" style="width: 100%; padding: 12px;" placeholder="e.g., Thank you for your hard work this week!">
+        </div>
+        <div style="margin-bottom: 24px;">
+            <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 8px;">Message</label>
+            <textarea id="notif-body" class="form-control" style="width: 100%; padding: 12px; height: 120px; resize: none;" placeholder="Enter message body..."></textarea>
+        </div>
+        <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 14px; font-size: 15px;" onclick="sendNotification()">
+            Confirm & Send
+        </button>
+    </div>
+</div>
+
+<script>
+    // Initial render on page load
+    function renderManager() {
+        // Set real-time timestamp
+        let now = new Date();
+        document.getElementById('sync-time').innerText = now.toLocaleTimeString();
+
+        let db = JSON.parse(localStorage.getItem('sruDB_EN'));
+        if(db) {
+            // Render data cards
+            let totalHours = db.volunteers ? db.volunteers.reduce((sum, v) => sum + (v.hours || 0), 0) : 0;
+            document.getElementById('stat-vols').innerText = db.volunteers ? db.volunteers.length : 0;
+            document.getElementById('stat-events').innerText = db.events ? db.events.length : 0;
+            document.getElementById('stat-pending').innerText = db.assignments ? db.assignments.filter(a => a.volunteer === 'Unassigned').length : 0;
+            document.getElementById('stat-hours').innerText = totalHours;
+
+            // Render leaderboard
+            if(db.volunteers) {
+                let sorted = [...db.volunteers].sort((a, b) => (b.hours || 0) - (a.hours || 0));
+                let maxH = sorted[0].hours || 1;
+                document.getElementById('leaderboard').innerHTML = sorted.map((v, i) => {
+                    let rankIcon = i < 3 ? `<i class="fa-solid fa-trophy" style="color:var(--warning-gold); font-size:16px;"></i>` : `<span style="padding-left:14px;">#${i+1}</span>`;
+                    return `
+                        <tr class="vol-row">
+                            <td style="font-weight:800; color:#94A3B8;">${rankIcon}</td>
+                            <td>
+                                <div class="user-cell">
+                                    <div class="user-avatar">${v.name.charAt(0)}</div>
+                                    <div class="vol-name" style="font-weight:600; font-size:14.5px;">${v.name}</div>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="font-weight:700; font-size:14px;">${v.hours || 0} hrs</div>
+                                <div class="progress-container"><div class="progress-bar" style="width:${(v.hours||0)/maxH*100}%"></div></div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+                // Render approval list
+                let pending = db.volunteers.filter(v => v.status === "Pending");
+                if(pending.length === 0) {
+                    document.getElementById('approvals').innerHTML = `
+                        <div class="empty-state">
+                            <i class="fa-solid fa-clipboard-check"></i>
+                            <h4 style="margin-top: 10px;">Everything is in order!</h4>
+                            <p>No pending compliance applications at the moment.</p>
+                        </div>`;
+                } else {
+                    document.getElementById('approvals').innerHTML = pending.map(v => `
+                        <div style="border:1px solid #E2E8F0; padding:16px; border-radius:12px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; background: #F8FAFC;">
+                            <div><div style="font-weight:700; color:#0F172A; margin-bottom:4px;">${v.name}</div><div style="font-size:12px; color:#64748B;">Skills: ${v.skills.join(', ')}</div></div>
+                            <button class="btn btn-success" onclick="approve(${v.id})"><i class="fa-solid fa-check"></i> Approve</button>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            // Render events and roles
+            if(db.events) {
+                document.getElementById('events-list').innerHTML = db.events.length === 0 ? "<tr><td colspan='4' style='text-align:center; padding: 30px; color:#64748B;'>No schedules available.</td></tr>" : db.events.map(e => `
+                    <tr>
+                        <td style="font-weight:700; color:#0F172A;">${e.date}</td>
+                        <td style="font-weight:600;">${e.name}</td>
+                        <td><span class="badge-type">${e.type}</span></td>
+                        <td>${e.roles.map(r => `<span class="badge-role">${r}</span>`).join('')}</td>
+                    </tr>
+                `).join('');
+            }
+        }
+    }
+
+    // Leaderboard real-time search
+    function filterLeaderboard() {
+        let kw = document.getElementById('search-vol').value.toLowerCase();
+        let rows = document.querySelectorAll('.vol-row');
+        rows.forEach(r => {
+            let name = r.querySelector('.vol-name').innerText.toLowerCase();
+            r.style.display = name.includes(kw) ? '' : 'none';
+        });
+    }
+
+    // Notification modal controls
+    function openNotifModal() { document.getElementById('notif-modal').classList.add('active'); }
+    function sendNotification() {
+        let sub = document.getElementById('notif-sub').value;
+        let body = document.getElementById('notif-body').value;
+        if(!sub || !body) return alert("Please fill in both the subject and message!");
+
+        alert("📢 Sent successfully!\n\nThe system has broadcasted this message to the target volunteers via the underlying email gateway.");
+        document.getElementById('notif-sub').value = '';
+        document.getElementById('notif-body').value = '';
+        document.getElementById('notif-modal').classList.remove('active');
+    }
+
+    // Approval function
+    function approve(id) {
+        let db = JSON.parse(localStorage.getItem('sruDB_EN'));
+        let vol = db.volunteers.find(v => v.id === id);
+        if(vol) { vol.status = "Active"; localStorage.setItem('sruDB_EN', JSON.stringify(db)); renderManager(); alert(`✅ Approved ${vol.name}, now available for scheduling.`); }
+    }
+
+    window.onload = renderManager;
+</script>
+</body>
+</html>

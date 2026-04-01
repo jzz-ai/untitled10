@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Coordinator Dashboard - Simply Rugby</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --bg-body: #F4F7FE; --sidebar-bg: #0F172A; --primary-blue: #2563EB; --success-green: #10B981; --surface: #FFFFFF; --text-main: #1E293B; --border: #E2E8F0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg-body); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: 280px; background: var(--sidebar-bg); color: white; display: flex; flex-direction: column; z-index: 20;}
+        .brand { padding: 30px 24px; font-size: 20px; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .nav-menu { flex-grow: 1; padding: 20px 16px; }
+        .nav-item { padding: 14px 20px; cursor: pointer; display: flex; align-items: center; gap: 14px; color: #94A3B8; font-weight: 500; border-radius: 12px; margin-bottom: 8px; transition: 0.2s;}
+        .nav-item:hover { background: #1E293B; color: white; }
+        .nav-item.active { background: var(--primary-blue); color: white; }
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .header { background: var(--surface); height: 80px; padding: 0 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); z-index: 10;}
+        .content { padding: 40px; overflow-y: auto; flex-grow: 1; }
+        .page-section { display: none; animation: fadeIn 0.4s forwards; } .page-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .panel { background: var(--surface); border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 10px 20px -5px rgba(0,0,0,0.05); overflow: hidden; margin-bottom: 30px;}
+        .panel-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #F8FAFC;}
+
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 16px 24px; border-bottom: 1px solid var(--border); }
+        th { font-size: 12px; color: #64748B; text-transform: uppercase; font-weight: 600;}
+
+        .badge { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;}
+        .btn { padding: 10px 20px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; color: white; font-size: 14px; transition: 0.2s;}
+        .btn-action { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; transition: 0.2s;}
+        .btn-action:hover { opacity: 0.8; }
+
+        .form-control { padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; outline: none; width: 100%; font-size: 14px;}
+        .form-control:focus { border-color: var(--primary-blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+
+        /* Modal Styles */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-overlay.active { display: flex; animation: fadeIn 0.2s ease; }
+        .modal-content { background: white; padding: 32px; border-radius: 20px; width: 100%; max-width: 500px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;}
+        .modal-header h3 { font-size: 20px; color: var(--text-main); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px;}
+    </style>
+</head>
+<body>
+<aside class="sidebar">
+    <div class="brand"><i class="fa-solid fa-shield-halved" style="color:var(--primary-blue);"></i> Simply Rugby</div>
+    <div class="nav-menu">
+        <div class="nav-item active" onclick="switchTab('tab-evt', 'Event Management & Scheduling (CRUD)')"><i class="fa-solid fa-calendar-days"></i> Event Management</div>
+        <div class="nav-item" onclick="switchTab('tab-assign', 'Task Assignment Engine')"><i class="fa-solid fa-bolt"></i> AI Assignment</div>
+        <div class="nav-item" onclick="switchTab('tab-vol', 'Volunteer Database')"><i class="fa-solid fa-users"></i> Volunteer Profiles</div>
+    </div>
+    <a href="login.html" style="margin:20px; padding:16px; text-align:center; color:#FCA5A5; text-decoration:none; background:rgba(239,68,68,0.1); border-radius:12px; font-weight:600;"><i class="fa-solid fa-right-from-bracket"></i> Log Out</a>
+</aside>
+
+<main class="main-content">
+    <header class="header">
+        <h2 id="page-title">Event Management & Scheduling (CRUD)</h2>
+        <div style="font-weight:600; color:#64748B;"><i class="fa-solid fa-user-tie"></i> Coordinator Console</div>
+    </header>
+    <div class="content">
+
+        <section id="tab-evt" class="page-section active">
+            <div class="panel">
+                <div class="panel-header">
+                    <h3 style="font-size:18px;"><i class="fa-solid fa-flag-checkered"></i> All Club Event Records</h3>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <div style="position: relative;">
+                            <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 12px; color: #94A3B8; font-size: 14px;"></i>
+                            <input type="text" id="search-evt" class="form-control" style="padding-left: 36px; width: 240px;" placeholder="Search event name or type..." onkeyup="searchEvents()">
+                        </div>
+                        <button class="btn" style="background:var(--primary-blue);" onclick="openEventModal()"><i class="fa-solid fa-plus"></i> New Schedule</button>
+                    </div>
+                </div>
+                <table id="tbl-evt">
+                    <thead><tr><th>Event Name</th><th>Date</th><th>Type</th><th>Required Roles</th><th>Actions</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="tab-assign" class="page-section">
+            <div class="panel">
+                <div class="panel-header">
+                    <h3 style="font-size:18px;"><i class="fa-solid fa-robot" style="color:var(--primary-blue);"></i> Smart Double-Booking Prevention</h3>
+                    <button class="btn" style="background:var(--success-green);" id="btn-ai" onclick="runAIAssign()"><i class="fa-solid fa-wand-magic-sparkles"></i> Run AI Match</button>
+                </div>
+                <table id="tbl-assign">
+                    <thead><tr><th>Associated Event</th><th>Role to Fill</th><th>Assigned Volunteer</th><th>Status</th><th>Intervention</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="tab-vol" class="page-section">
+            <div class="panel">
+                <div class="panel-header"><h3 style="font-size:18px;">Registered Volunteer Database</h3></div>
+                <table id="tbl-vol">
+                    <thead><tr><th>Name</th><th>Certified Skills</th><th>Availability</th><th>Compliance Status</th><th>Hours Served</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
+</main>
+
+<div id="event-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modal-title">Create New Schedule</h3>
+            <i class="fa-solid fa-xmark" style="cursor: pointer; font-size: 20px; color: #94A3B8;" onclick="closeModal()"></i>
+        </div>
+        <input type="hidden" id="evt-id">
+        <div class="form-group">
+            <label>Event Name</label>
+            <input type="text" id="evt-name" class="form-control" placeholder="e.g., U18 Youth League">
+        </div>
+        <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="evt-date" class="form-control">
+        </div>
+        <div class="form-group">
+            <label>Type</label>
+            <select id="evt-type" class="form-control">
+                <option value="Match">Match</option>
+                <option value="Training">Training</option>
+                <option value="Social/Fundraiser">Social/Fundraiser</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Required Roles (Comma separated)</label>
+            <input type="text" id="evt-roles" class="form-control" placeholder="e.g., First Aid, Referee, Pitch Setup">
+            <div style="font-size: 12px; color: #64748B; margin-top: 6px;"><i class="fa-solid fa-circle-info"></i> After saving, the system will automatically generate these empty roles in the assignment engine.</div>
+        </div>
+        <button class="btn" style="background: var(--success-green); width: 100%; padding: 14px;" onclick="saveEvent()">Save to Database</button>
+    </div>
+</div>
+
+<script>
+    function initDB() {
+        let db = JSON.parse(localStorage.getItem('sruDB_EN'));
+        if(!db) {
+            db = {
+                volunteers: [
+                    { id: 1, name: "John Doe", email: "john@test.com", skills: ["First Aid"], avail: "✅ Available this week", status: "Active", hours: 22 },
+                    { id: 2, name: "Sarah Smith", email: "sarah@test.com", skills: ["Referee", "Coach"], avail: "✅ Available weekends", status: "Active", hours: 45 },
+                    { id: 3, name: "Mike Johnson", email: "mike@test.com", skills: ["Pitch Setup"], avail: "❌ Unavailable", status: "Pending", hours: 0 }
+                ],
+                events: [
+                    { id: 101, name: "Senior Regional Championship Final", date: "2026-11-15", type: "Match", roles: ["First Aid", "Referee", "Pitch Setup"] }
+                ],
+                assignments: [
+                    { event: "Senior Regional Championship Final", role: "First Aid", volunteer: "John Doe", status: "Confirmed ✓" },
+                    { event: "Senior Regional Championship Final", role: "Referee", volunteer: "Unassigned", status: "Vacant ⚠️" },
+                    { event: "Senior Regional Championship Final", role: "Pitch Setup", volunteer: "Unassigned", status: "Vacant ⚠️" }
+                ]
+            };
+            localStorage.setItem('sruDB_EN', JSON.stringify(db));
+        }
+        renderViews();
+    }
+
+    function switchTab(id, title) {
+        document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        event.currentTarget.classList.add('active');
+        document.getElementById('page-title').innerText = title;
+        renderViews();
+    }
+
+    // ===== Core Render Engine =====
+    function renderViews() {
+        let db = JSON.parse(localStorage.getItem('sruDB_EN'));
+
+        // Render Events Table (with CRUD actions)
+        document.getElementById('tbl-evt').querySelector('tbody').innerHTML = db.events.map(e => `
+            <tr>
+                <td style="font-weight:700;">${e.name}</td>
+                <td><i class="fa-regular fa-clock" style="color:#94A3B8;"></i> ${e.date}</td>
+                <td><span style="background:#E0E7FF; color:#3730A3; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600;">${e.type}</span></td>
+                <td>${e.roles.map(r => `<span style="background:#F1F5F9; border:1px solid #E2E8F0; padding:2px 8px; border-radius:4px; font-size:12px; margin-right:4px;">${r}</span>`).join('')}</td>
+                <td>
+                    <button class="btn-action" style="background:#DBEAFE; color:#1D4ED8; margin-right:8px;" onclick="openEventModal(${e.id})"><i class="fa-solid fa-pen"></i> Edit</button>
+                    <button class="btn-action" style="background:#FEE2E2; color:#B91C1C;" onclick="deleteEvent(${e.id}, '${e.name}')"><i class="fa-solid fa-trash"></i> Delete</button>
+                </td>
+            </tr>
+        `).join('');
+
+        // Render Assignments and Volunteers
+        document.getElementById('tbl-assign').querySelector('tbody').innerHTML = db.assignments.map(a => `<tr><td style="font-weight:600;">${a.event}</td><td style="color:#64748B;">${a.role}</td><td style="color:${a.volunteer==='Unassigned'?'#EF4444':'#0F172A'}; font-weight:700;">${a.volunteer}</td><td><span class="badge" style="background:${a.status.includes('Vacant')?'#FEE2E2':'#D1FAE5'}; color:${a.status.includes('Vacant')?'#991B1B':'#065F46'};">${a.status}</span></td><td>${a.volunteer === 'Unassigned' ? `<button class="btn-action" style="background:#DBEAFE; color:#1D4ED8;" onclick="manualAssign('${a.event}', '${a.role}')"><i class="fa-solid fa-user-plus"></i> Assign</button>` : `<button class="btn-action" style="background:#FEE2E2; color:#B91C1C;" onclick="unassign('${a.event}', '${a.role}')"><i class="fa-solid fa-xmark"></i> Revoke</button>`}</td></tr>`).join('');
+        document.getElementById('tbl-vol').querySelector('tbody').innerHTML = db.volunteers.map(v => `<tr><td style="font-weight:600;">${v.name}</td><td>${v.skills.map(s => `<span style="background:#F1F5F9; border:1px solid #E2E8F0; padding:2px 8px; border-radius:4px; font-size:12px; margin-right:4px;">${s}</span>`).join('')}</td><td style="font-weight:600; font-size:13px; color:${v.avail.includes('❌') ? '#EF4444' : '#10B981'};">${v.avail}</td><td><span class="badge" style="background:${v.status==='Active'?'#D1FAE5':'#FEF3C7'}; color:${v.status==='Active'?'#065F46':'#B45309'};">${v.status}</span></td><td><span style="font-weight:700;">${v.hours}</span> hrs</td></tr>`).join('');
+    }
+
+    // ===== CRUD Logic =====
+
+    // Read/Search
+    function searchEvents() {
+        let keyword = document.getElementById('search-evt').value.toLowerCase();
+        let rows = document.querySelectorAll('#tbl-evt tbody tr');
+        rows.forEach(row => { row.style.display = row.innerText.toLowerCase().includes(keyword) ? '' : 'none'; });
+    }
+
+    // Modal Control
+    function openEventModal(id = null) {
+        document.getElementById('event-modal').classList.add('active');
+        if(id) {
+            let db = JSON.parse(localStorage.getItem('sruDB_EN'));
+            let ev = db.events.find(e => e.id === id);
+            document.getElementById('modal-title').innerText = "Edit Schedule (Update)";
+            document.getElementById('evt-id').value = ev.id;
+            document.getElementById('evt-name').value = ev.name;
+            document.getElementById('evt-date').value = ev.date;
+            document.getElementById('evt-type').value = ev.type;
+            document.getElementById('evt-roles').value = ev.roles.join(', ');
+        } else {
+            document.getElementById('modal-title').innerText = "Create Schedule (Create)";
+            document.getElementById('evt-id').value = '';
+            document.getElementById('evt-name').value = '';
+            document.getElementById('evt-date').value = '';
+            document.getElementById('evt-type').value = 'Match';
+            document.getElementById('evt-roles').value = 'First Aid, Referee';
+        }
+    }
+    function closeModal() { document.getElementById('event-modal').classList.remove('active'); }
+
+    // Create/Update
+    function saveEvent() {
+        let db = JSON.parse(localStorage.getItem('sruDB_EN'));
+        let id = document.getElementById('evt-id').value;
+        let name = document.getElementById('evt-name').value;
+        let date = document.getElementById('evt-date').value;
+        let rolesInput = document.getElementById('evt-roles').value;
+
+        if(!name || !date || !rolesInput) return alert("Please fill in the event name, date, and roles!");
+
+        let rolesArr = rolesInput.split(',').map(s => s.trim()).filter(s => s);
+        let newEvt = { id: id ? parseInt(id) : Date.now(), name: name, date: date, type: document.getElementById('evt-type').value, roles: rolesArr };
+
+        if(id) {
+            // Edit
+            let idx = db.events.findIndex(e => e.id === parseInt(id));
+            let oldName = db.events[idx].name;
+            db.events[idx] = newEvt;
+            // Sync assignments
+            db.assignments.forEach(a => { if(a.event === oldName) a.event = name; });
+        } else {
+            // Create
+            db.events.push(newEvt);
+            // Core Logic: Automatically generate vacant assignment slots
+            rolesArr.forEach(r => {
+                db.assignments.push({ event: name, role: r, volunteer: "Unassigned", status: "Vacant ⚠️" });
+            });
+        }
+        localStorage.setItem('sruDB_EN', JSON.stringify(db));
+        closeModal(); renderViews();
+    }
+
+    // Delete (Cascade)
+    function deleteEvent(id, name) {
+        if(confirm(`WARNING!\nAre you sure you want to delete the event [${name}]?\nAll associated assignments will also be deleted!`)) {
+            let db = JSON.parse(localStorage.getItem('sruDB_EN'));
+            db.events = db.events.filter(e => e.id !== id);
+            // Cascade delete assignments
+            db.assignments = db.assignments.filter(a => a.event !== name);
+            localStorage.setItem('sruDB_EN', JSON.stringify(db));
+            renderViews();
+        }
+    }
+
+    // AI and Manual Assignment
+    function runAIAssign() {
+        let btn = document.getElementById('btn-ai'); btn.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Calculating...";
+        setTimeout(() => {
+            let db = JSON.parse(localStorage.getItem('sruDB_EN')); let assigned = 0;
+            db.assignments.forEach(a => {
+                if(a.volunteer === "Unassigned") {
+                    let vol = db.volunteers.find(v => v.skills.includes(a.role) && v.status === "Active" && !v.avail.includes("❌") && !db.assignments.some(ex => ex.event === a.event && ex.volunteer === v.name));
+                    if(vol) { a.volunteer = vol.name; a.status = "Confirmed ✓ (AI)"; assigned++; }
+                }
+            });
+            localStorage.setItem('sruDB_EN', JSON.stringify(db)); renderViews();
+            btn.innerHTML = "<i class='fa-solid fa-wand-magic-sparkles'></i> Run AI Match";
+            alert(assigned > 0 ? `✅ Match successful! Automatically assigned ${assigned} roles.` : "No suitable volunteers found.");
+        }, 800);
+    }
+    function manualAssign(evt, role) {
+        let db = JSON.parse(localStorage.getItem('sruDB_EN'));
+        let vol = prompt(`Manually assign for [${role}] at [${evt}]:`);
+        if(vol) { let t = db.assignments.find(a => a.event===evt && a.role===role); if(t) { t.volunteer=vol; t.status="Confirmed ✓"; localStorage.setItem('sruDB_EN', JSON.stringify(db)); renderViews(); } }
+    }
+    function unassign(evt, role) {
+        if(confirm("Are you sure you want to revoke this assignment?")) {
+            let db = JSON.parse(localStorage.getItem('sruDB_EN'));
+            let t = db.assignments.find(a => a.event===evt && a.role===role); if(t) { t.volunteer="Unassigned"; t.status="Vacant ⚠️"; localStorage.setItem('sruDB_EN', JSON.stringify(db)); renderViews(); }
+        }
+    }
+
+    window.onload = initDB;
+</script>
+</body>
+</html>

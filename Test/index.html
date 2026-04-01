@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simply Rugby - Official Club & Volunteer Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --sru-navy: #0A1C3E; --sru-blue: #1D4ED8; --sru-gold: #F59E0B; --bg-light: #F8FAFC; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg-light); color: #0F172A; overflow-x: hidden; }
+        .navbar { position: fixed; top: 0; width: 100%; height: 80px; padding: 0 5%; display: flex; justify-content: space-between; align-items: center; background: rgba(10, 28, 62, 0.85); backdrop-filter: blur(16px); z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .brand { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 800; color: white; text-decoration: none; display: flex; align-items: center; gap: 10px;}
+        .brand i { color: var(--sru-gold); }
+        .nav-links { display: flex; gap: 32px; align-items: center; }
+        .nav-links a { color: #E2E8F0; text-decoration: none; font-weight: 500; font-size: 15px; transition: 0.2s; }
+        .nav-links a:hover { color: var(--sru-gold); }
+        .btn-nav-login { padding: 10px 24px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); border-radius: 50px; color: white !important; font-weight: 600; }
+        .btn-nav-login:hover { background: white; color: var(--sru-navy) !important; }
+        .hero { height: 100vh; display: flex; align-items: center; padding: 0 10%; background: url('https://images.unsplash.com/photo-1588656708687-b9f1a2cc8697?q=80&w=2000&auto=format&fit=crop') center/cover fixed; position: relative; }
+        .hero::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(10,28,62,0.95) 0%, rgba(10,28,62,0.6) 50%, rgba(0,0,0,0.2) 100%); }
+        .hero-content { position: relative; z-index: 10; max-width: 600px; animation: fadeUp 1s forwards; }
+        .hero h1 { font-family: 'Playfair Display', serif; font-size: 56px; color: white; line-height: 1.1; margin-bottom: 24px; }
+        .hero p { font-size: 18px; color: #CBD5E1; line-height: 1.6; margin-bottom: 40px; }
+        .btn-primary { padding: 16px 32px; background: var(--sru-blue); color: white; text-decoration: none; border-radius: 12px; font-size: 16px; font-weight: 600; transition: 0.3s; display: inline-flex; align-items: center; gap: 10px; }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(29, 78, 216, 0.4); }
+        .events-section { padding: 100px 10%; background: white; }
+        .events-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 30px; margin-top: 40px;}
+        .event-card { border-radius: 16px; overflow: hidden; border: 1px solid #E2E8F0; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); transition: 0.3s; background: #F8FAFC;}
+        .event-card:hover { transform: translateY(-5px); border-color: var(--sru-blue); }
+        .event-badge { background: var(--sru-navy); color: white; padding: 16px; display: flex; justify-content: space-between; align-items: center; font-weight: 600;}
+        .event-body { padding: 24px; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a href="#" class="brand"><i class="fa-solid fa-shield-halved"></i> Simply Rugby</a>
+    <div class="nav-links">
+        <a href="#">Home</a><a href="#events">Event Schedule</a><a href="register.html">Become a Volunteer</a>
+        <a href="login.html" class="btn-nav-login">System Login</a>
+    </div>
+</nav>
+<section class="hero">
+    <div class="hero-content">
+        <span style="display:inline-block; padding:6px 16px; background:rgba(245,158,11,0.2); color:var(--sru-gold); border:1px solid var(--sru-gold); border-radius:50px; font-size:13px; font-weight:700; margin-bottom:24px;">Official Portal</span>
+        <h1>Strength, Passion,<br>& Community.</h1>
+        <p>Simply Rugby is a proud official club. Whether it's the fierce collisions on the pitch or the logistical support off it, we need you to join us. Register as a volunteer, track your contributions, and build a top-tier team with us.</p>
+        <a href="register.html" class="btn-primary">Join the Volunteer Team <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+</section>
+<section id="events" class="events-section">
+    <div style="text-align: center;">
+        <h2 style="font-family: 'Playfair Display', serif; font-size: 36px; color: var(--sru-navy); margin-bottom: 16px;">Upcoming Public Events</h2>
+        <p style="color: #64748B;">The following events are synced in real-time from our backend system. We welcome you to sign up and help with logistics.</p>
+    </div>
+    <div class="events-grid" id="events-container"></div>
+</section>
+<script>
+    window.onload = function() {
+        let db = JSON.parse(localStorage.getItem('sruDB_EN'));
+        let events = (db && db.events && db.events.length > 0) ? db.events : [
+            { name: "Senior Regional Championship Final", date: "2026-11-15 14:00", location: "Simply Main Pitch", type: "Official Match" }
+        ];
+        document.getElementById('events-container').innerHTML = events.map(e => `
+                <div class="event-card">
+                    <div class="event-badge"><span><i class="fa-regular fa-clock"></i> ${e.date}</span><span style="background:rgba(255,255,255,0.2); padding:4px 10px; border-radius:20px; font-size:12px;">${e.type}</span></div>
+                    <div class="event-body">
+                        <h3 style="font-size:20px; margin-bottom:12px;">${e.name}</h3>
+                        <div style="color:#64748B; font-size:14px;"><i class="fa-solid fa-location-dot" style="color:#1D4ED8; width:20px;"></i> ${e.location || 'TBD'}</div>
+                    </div>
+                </div>
+            `).join('');
+    };
+</script>
+</body>
+</html>

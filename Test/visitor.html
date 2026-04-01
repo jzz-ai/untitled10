@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Public Portal - Simply Rugby</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --sru-navy: #0A1C3E;
+            --sru-blue: #1D4ED8;
+            --sru-gold: #F59E0B;
+            --pitch-green: #10B981;
+            --bg-light: #F4F7FE;
+            --surface: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+            --shadow-md: 0 10px 25px -5px rgba(0,0,0,0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
+        body { background: var(--bg-light); display: flex; height: 100vh; overflow: hidden; color: var(--text-main); }
+
+        /* ================= Sidebar ================= */
+        .sidebar { width: 260px; background: #0F172A; color: white; display: flex; flex-direction: column; z-index: 20; box-shadow: 4px 0 24px rgba(0,0,0,0.1);}
+        .brand { padding: 30px 24px; font-size: 22px; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 12px; font-family: 'Playfair Display', serif;}
+        .brand i { color: var(--sru-gold); font-size: 24px; }
+        .brand span { display: block; font-size: 11px; color: #94A3B8; font-weight: 500; margin-top: 4px; font-family: 'Inter', sans-serif; letter-spacing: 1px;}
+
+        .nav-menu { flex: 1; padding: 20px 16px; display: flex; flex-direction: column; gap: 8px;}
+        .nav-item { padding: 14px 20px; color: #CBD5E1; cursor: pointer; border-radius: 12px; font-size: 14.5px; font-weight: 500; display: flex; align-items: center; gap: 12px; transition: 0.2s;}
+        .nav-item i { width: 20px; text-align: center; font-size: 16px; }
+        .nav-item:hover { background: rgba(255,255,255,0.05); color: white; transform: translateX(4px);}
+        .nav-item.active { background: var(--sru-blue); color: white; box-shadow: 0 4px 12px rgba(29, 78, 216, 0.3); transform: none;}
+
+        .login-btn { padding: 16px; margin: 20px 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white; text-align: center; cursor: pointer; text-decoration: none; font-weight: 600; display: flex; justify-content: center; align-items: center; gap: 8px; transition: 0.2s;}
+        .login-btn:hover { background: white; color: var(--sru-navy); }
+
+        /* ================= Main Content ================= */
+        .main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; scroll-behavior: smooth;}
+        .view-section { display: none; animation: fadeUp 0.5s ease forwards; padding-bottom: 60px;}
+        .view-section.active { display: block; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Immersive Banner */
+        .public-banner {
+            position: relative;
+            padding: 80px 60px;
+            color: white;
+            background: url('https://images.unsplash.com/photo-1544298621-3e0e7195bb0b?q=80&w=2000&auto=format&fit=crop') center/cover no-repeat;
+            display: flex; flex-direction: column; justify-content: center;
+        }
+        .public-banner::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(90deg, rgba(10,28,62,0.95) 0%, rgba(10,28,62,0.7) 50%, rgba(0,0,0,0.2) 100%);
+        }
+        .banner-content { position: relative; z-index: 10; max-width: 700px; }
+        .banner-content h1 { font-family: 'Playfair Display', serif; font-size: 42px; font-weight: 800; margin-bottom: 16px; line-height: 1.2;}
+        .banner-content p { font-size: 16px; color: #E2E8F0; line-height: 1.7; margin-bottom: 30px; }
+
+        .content-wrap { padding: 0 60px; margin-top: -30px; position: relative; z-index: 20;}
+
+        /* CTA Card */
+        .cta-card { background: linear-gradient(135deg, #ffffff, #F0F9FF); border-radius: 20px; border: 1px solid #BAE6FD; padding: 40px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; box-shadow: var(--shadow-md);}
+        .cta-text h3 { color: var(--sru-navy); font-size: 24px; margin-bottom: 10px; font-weight: 800;}
+        .cta-text p { color: var(--text-muted); font-size: 15px; line-height: 1.6;}
+        .btn-join { padding: 14px 28px; background: var(--sru-blue); color: white; border-radius: 12px; font-size: 16px; font-weight: 600; text-decoration: none; box-shadow: 0 4px 12px rgba(29, 78, 216, 0.25); transition: 0.2s;}
+        .btn-join:hover { transform: translateY(-2px); background: #2563EB; box-shadow: 0 8px 20px rgba(29, 78, 216, 0.3);}
+
+        /* ================= Grid Cards ================= */
+        .section-title { font-size: 22px; font-weight: 800; color: var(--sru-navy); margin-bottom: 24px; display: flex; align-items: center; gap: 10px;}
+        .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; margin-bottom: 40px;}
+
+        .img-card { background: var(--surface); border-radius: 16px; overflow: hidden; border: 1px solid var(--border); box-shadow: var(--shadow-md); transition: 0.3s;}
+        .img-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.08); border-color: #CBD5E1;}
+        .img-card .img-wrapper { height: 180px; width: 100%; overflow: hidden; position: relative;}
+        .img-card img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s;}
+        .img-card:hover img { transform: scale(1.05); }
+        .img-card .badge { position: absolute; top: 16px; left: 16px; background: rgba(255,255,255,0.9); backdrop-filter: blur(4px); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; color: var(--sru-navy);}
+
+        .card-body { padding: 24px; }
+        .card-body h4 { font-size: 18px; color: var(--text-main); margin-bottom: 12px; line-height: 1.4;}
+        .card-info-row { display: flex; align-items: center; gap: 8px; color: var(--text-muted); font-size: 13.5px; margin-bottom: 8px;}
+        .card-info-row i { color: var(--sru-blue); width: 16px; text-align: center;}
+
+        /* About Text Section */
+        .about-content { background: white; padding: 40px; border-radius: 20px; border: 1px solid var(--border); line-height: 1.8; color: var(--text-muted); font-size: 15px;}
+        .about-content h3 { color: var(--sru-navy); margin-bottom: 16px; font-size: 20px;}
+        .about-content p { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+<aside class="sidebar">
+    <div class="brand">
+        <i class="fa-solid fa-shield-halved"></i>
+        <div>Simply Rugby<span>Public Access Portal</span></div>
+    </div>
+    <div class="nav-menu">
+        <div class="nav-item active" onclick="switchTab('view-home')"><i class="fa-solid fa-house"></i> Club Home & News</div>
+        <div class="nav-item" onclick="switchTab('view-events')"><i class="fa-solid fa-calendar-days"></i> Public Events & Schedule</div>
+        <div class="nav-item" onclick="switchTab('view-about')"><i class="fa-solid fa-trophy"></i> About SRU Club</div>
+    </div>
+    <a href="login.html" class="login-btn"><i class="fa-solid fa-lock"></i> Staff/Volunteer Login</a>
+</aside>
+
+<main class="main">
+
+    <section id="view-home" class="view-section active">
+        <div class="public-banner">
+            <div class="banner-content">
+                <h1>Inherit the Rugby Spirit,<br>Build Community Glory.</h1>
+                <p>We are a proud club under the Scottish Rugby Union (SRU). Browse our upcoming public events, support our teams, and discover how you can join us to become an integral part of the club.</p>
+                <a href="register.html" class="btn-join" style="display: inline-block;">Become a Volunteer Now</a>
+            </div>
+        </div>
+
+        <div class="content-wrap">
+            <div class="cta-card">
+                <div class="cta-text">
+                    <h3>We Need Your Support! 🙌</h3>
+                    <p>The club's operation relies on the selfless dedication of parents, fans, and community members. Whether you know first aid, can coach, or just want to help set up the pitch, we welcome you to join us!</p>
+                </div>
+                <a href="register.html" class="btn-join">Fill Out Registration →</a>
+            </div>
+
+            <h2 class="section-title"><i class="fa-regular fa-newspaper"></i> Latest Club News</h2>
+            <div class="grid-cards">
+                <div class="img-card">
+                    <div class="img-wrapper">
+                        <span class="badge">Club News</span>
+                        <img src="https://images.unsplash.com/photo-1579737153406-38440db7f9fc?q=80&w=600&auto=format&fit=crop" alt="News">
+                    </div>
+                    <div class="card-body">
+                        <h4>Senior Team Advances to Regional Championship Final</h4>
+                        <div class="card-info-row"><i class="fa-regular fa-calendar"></i> 2026-10-10</div>
+                        <p style="color: var(--text-muted); font-size: 13px; margin-top: 8px;">After fierce competition, our senior team secured a spot in the finals with outstanding results. Thank you to all the fans for your support.</p>
+                    </div>
+                </div>
+                <div class="img-card">
+                    <div class="img-wrapper">
+                        <span class="badge" style="color: var(--pitch-green);">Volunteer Spotlight</span>
+                        <img src="https://images.unsplash.com/photo-1520110390145-127c59828330?q=80&w=600&auto=format&fit=crop" alt="News">
+                    </div>
+                    <div class="card-body">
+                        <h4>Saluting Behind-the-Scenes Heroes: Volunteer of the Year Award</h4>
+                        <div class="card-info-row"><i class="fa-regular fa-calendar"></i> 2026-09-28</div>
+                        <p style="color: var(--text-muted); font-size: 13px; margin-top: 8px;">The system has automatically tallied volunteer service hours for this season. Top-ranking volunteers will attend the annual dinner and be honored.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="view-events" class="view-section">
+        <div class="public-banner" style="background-image: url('https://images.unsplash.com/photo-1588656708687-b9f1a2cc8697?q=80&w=2000&auto=format&fit=crop'); padding: 60px;">
+            <div class="banner-content">
+                <h1>Public Event Schedule</h1>
+                <p>Fans are welcome to come watch the games, or sign up as volunteers to help with event logistics. The following data is synced in real-time from our backend system.</p>
+            </div>
+        </div>
+
+        <div class="content-wrap" style="margin-top: 40px;">
+            <div class="grid-cards" id="public-events-grid">
+            </div>
+        </div>
+    </section>
+
+    <section id="view-about" class="view-section">
+        <div class="public-banner" style="background-image: url('https://images.unsplash.com/photo-1629949009765-40fc8019e072?q=80&w=2000&auto=format&fit=crop'); padding: 60px;">
+            <div class="banner-content">
+                <h1>About Simply Rugby</h1>
+                <p>A proud member of the Scottish Rugby Union (SRU).</p>
+            </div>
+        </div>
+
+        <div class="content-wrap" style="margin-top: 40px;">
+            <div class="about-content">
+                <h3>Our History & Vision</h3>
+                <p>Simply Rugby is an official rugby club based in Scotland. We have a complete tier structure from Junior Squads to Senior Teams, and are dedicated to promoting the teamwork spirit of rugby within the community.</p>
+
+                <h3>The Importance of Volunteers</h3>
+                <p>The vast majority of the club's coaching staff, medical support, and pitch maintenance is handled by enthusiastic volunteers (usually parents of players or retired players). To more efficiently coordinate our large volunteer team, we have implemented this new digital scheduling and coordination system to ensure every match runs safely and smoothly.</p>
+
+                <h3>Safety & Compliance</h3>
+                <p>All players are registered with the SRU for insurance coverage; guardian consent forms for all youth players are strictly archived in the system. We also conduct background and qualification checks on volunteers (such as verifying first aid certificates and coaching credentials) to ensure the safety of every participant.</p>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<script>
+    // SPA Tab Switching Logic
+    function switchTab(viewId) {
+        document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+        document.getElementById(viewId).classList.add('active');
+        event.currentTarget.classList.add('active');
+
+        // Re-fetch latest data when switching to events tab
+        if(viewId === 'view-events') {
+            renderEvents();
+        }
+    }
+
+    // Dynamic Event Rendering Logic (with automatic images)
+    function renderEvents() {
+        let db = JSON.parse(localStorage.getItem('sruDB_EN'));
+        let events = (db && db.events && db.events.length > 0) ? db.events : [
+            { name: "Senior Regional Championship Final", date: "2026-11-15 14:00", location: "Main Pitch", type: "Official Match" },
+            { name: "U16 Youth Autumn League", date: "2026-11-18 09:30", location: "Community Pitch", type: "Youth Event" },
+            { name: "Annual Club BBQ Fundraiser", date: "2026-11-25 12:00", location: "Clubhouse", type: "Social Event" }
+        ];
+
+        // HD event image library (assigned randomly or sequentially to new events from backend)
+        const imageLibrary = [
+            "https://images.unsplash.com/photo-1544298621-3e0e7195bb0b?q=80&w=600&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1588656708687-b9f1a2cc8697?q=80&w=600&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1629949009765-40fc8019e072?q=80&w=600&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1520110390145-127c59828330?q=80&w=600&auto=format&fit=crop"
+        ];
+
+        document.getElementById('public-events-grid').innerHTML = events.map((e, index) => {
+            // Assign image based on index to ensure stable rendering
+            let imgUrl = imageLibrary[index % imageLibrary.length];
+
+            return `
+                <div class="img-card">
+                    <div class="img-wrapper">
+                        <span class="badge" style="background: var(--sru-navy); color: white;">${e.type}</span>
+                        <img src="${imgUrl}" alt="${e.name}">
+                    </div>
+                    <div class="card-body">
+                        <h4>${e.name}</h4>
+                        <div class="card-info-row"><i class="fa-regular fa-clock"></i> ${e.date}</div>
+                        <div class="card-info-row"><i class="fa-solid fa-location-dot"></i> ${e.location || 'TBD'}</div>
+                        <div style="margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--border);">
+                            <a href="register.html" style="color: var(--sru-blue); font-size: 14px; font-weight: 600; text-decoration: none;">Sign up as a volunteer for this event →</a>
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+    }
+
+    // Render events once on initial load (so they are visible if user switches to that tab directly)
+    window.onload = () => {
+        renderEvents();
+    };
+</script>
+</body>
+</html>
